@@ -110,6 +110,7 @@ class AnimationManager {
 
     public void stopAll() {
         if (animation != null) {
+            animation.removeAllUpdateListeners();
             animation.cancel();
             animation = null;
         }
@@ -127,8 +128,13 @@ class AnimationManager {
 
     class XAnimation extends AnimatorListenerAdapter implements AnimatorUpdateListener {
 
+        private boolean isCancelled = false;
+
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
+            if (isCancelled) {
+                return;
+            }
             float offset = (Float) animation.getAnimatedValue();
             pdfView.moveTo(offset, pdfView.getCurrentYOffset());
             pdfView.loadPageByOffset();
@@ -136,6 +142,7 @@ class AnimationManager {
 
         @Override
         public void onAnimationCancel(Animator animation) {
+            isCancelled = true;
             pdfView.loadPages();
             pageFlinging = false;
             hideHandle();
@@ -151,8 +158,13 @@ class AnimationManager {
 
     class YAnimation extends AnimatorListenerAdapter implements AnimatorUpdateListener {
 
+        private boolean isCancelled = false;
+
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
+            if (isCancelled) {
+                return;
+            }
             float offset = (Float) animation.getAnimatedValue();
             pdfView.moveTo(pdfView.getCurrentXOffset(), offset);
             pdfView.loadPageByOffset();
@@ -160,6 +172,7 @@ class AnimationManager {
 
         @Override
         public void onAnimationCancel(Animator animation) {
+            isCancelled = true;
             pdfView.loadPages();
             pageFlinging = false;
             hideHandle();
